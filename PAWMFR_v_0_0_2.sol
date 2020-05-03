@@ -25,6 +25,7 @@ contract IERC20 {
     function totalySupply() public pure returns (uint);
     function balanceOf(address _account) public view returns (uint balance);
     function allowance(address _allowance, address spender) public view returns (uint remaining);
+    function approve(address _spender, uint256 _value) public returns (bool success);
     function transfer(address to, uint amount) public returns (bool success);
     function transferFrom(address from, address to, uint tokens) public returns (bool success);
 
@@ -86,6 +87,13 @@ contract PawPoolsToken is IERC20 {
     }
     function allowance(address _allowance, address spender) public view returns (uint remaining) {
         return allowed[_allowance][spender];
+    }
+    function approve(address _spender, uint256 _value) public returns (bool success) {
+        require(balances[_spender] >= _value);
+        
+        emit Approval(msg.sender, _spender, _value);
+        
+        return true;
     }
     function transfer(address to, uint amount) public returns (bool success) {
         require(amount < _totalSupply && amount > 0);
