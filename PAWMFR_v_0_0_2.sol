@@ -44,6 +44,8 @@ contract PawPoolsToken is ERC20Interface {
     address public activeTokenHolder;
     // Address in which Paw Pools Tokens will be destroyed if sent to this address
     address public burner;
+    // Address in which Paw Pools Token and the Smart Contract can be destroyed from. (temporary)
+    address public demolitionist;
 
     // Balances
     mapping (address => uint) private balances;
@@ -55,13 +57,15 @@ contract PawPoolsToken is ERC20Interface {
     event ActivateTokens(address from, address to, uint amount);
     event DeactivateTokens(address from, uint amount);
     event Burnt(address from, uint amount);
+    event ContractDestroyed();
 
     // Constructor
 
-    constructor(address _activeTokenHolder, address _burner) public {
+    constructor(address _activeTokenHolder, address _burner, address _demolitionist) public {
         minter = msg.sender;
         activeTokenHolder = _activeTokenHolder;
         burner = _burner;
+        demolitionist = _demolitionist;
     }
 
     // Functions
@@ -105,6 +109,15 @@ contract PawPoolsToken is ERC20Interface {
         balances[msg.sender] -= amount;
         balances[receiver] += amount;
         emit Sent(msg.sender, receiver, amount);
+    }
+    
+    function destroyContract(address payable receiver) public {
+        require(msg.sender == demolitionist);
+        require(balances[activeTokenHolder] == 0);
+        
+        emit ContractDestroyed();
+        
+        selfdestruct(receiver);
     }
 
 }
